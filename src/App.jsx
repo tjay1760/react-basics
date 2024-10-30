@@ -1,44 +1,45 @@
 import "./App.css";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import SearchIcon from "./search.svg";
+import MovieCard from "./MovieCard";
 
 const myKey = "941707c";
 const moviesAPI = `http://www.omdbapi.com/?apikey=${myKey}`;
-const testData = {
-  Title: "Batman Begins",
-  Year: "2005",
-  imdbID: "tt0372784",
-  Type: "movie",
-  Poster:
-    "https://m.media-amazon.com/images/M/MV5BODIyMDdhNTgtNDlmOC00MjUxLWE2NDItODA5MTdkNzY3ZTdhXkEyXkFqcGc@._V1_SX300.jpg",
-};
+
 function App() {
+  const [movies, setMovies] = useState([]);
+  const [searchTerm,setSearchTerm] = useState('')
   async function searchMovies(title) {
     const res = await fetch(`${moviesAPI}&s=${title}`);
     const data = await res.json();
-    console.log(data.Search[0]);
+    setMovies(data.Search);
   }
   useEffect(() => {
-    searchMovies("Batman");
-  }, []);
+    searchMovies(searchTerm);
+  }, [searchTerm]);
 
   return (
     <>
       <h1>Movie Land </h1>
       <div className="search">
-        <input placeholder="Batman" value="Batman" onChange={() => {}}></input>
-        <img src={SearchIcon} alt="search" onClick={() => {}} />
+        <input placeholder="Batman" value={searchTerm} onChange={(e) => {setSearchTerm(e.target.value)}}></input>
+        <img src={SearchIcon} alt="search" onClick={() => {searchMovies(searchTerm)}} />
       </div>
-      <div className="container">
-        <div className="movie">
-          <div className="">
-            <p>{testData.Year}</p>
-          </div>
-          <div>
-            <img src ={testData.Poster!=='N/A'?testData.Poster:"https://via.placeholder.com/400x300"} alt={testData.Title}/>
-          </div>
+      {movies?.length > 0 ? (
+        
+          <div className="container">
+            {movies.map((movie)=>
+            (  <MovieCard key = {movie.title}
+              testData={movie} />)
+            )}
+          
         </div>
+      
+      ) : (<div className="empty">
+        <h2>Movies not found</h2>
       </div>
+        
+      )}
     </>
   );
 }
